@@ -47,11 +47,11 @@ void Image::onMessage(Wmsg message)
         case IMG_ADJUST:
             if ((Widget::mWidth*mHeightTexture)/mWidthTexture > Widget::mHeight) {
                 int imageWidth = (Widget::mHeight*mWidthTexture)/mHeightTexture;
-                int imageX = Widget::mX + (Widget::mWidth - imageWidth)*0.5f;
+                int imageX = Widget::mX + 0.5f*(Widget::mWidth - imageWidth);
                 drawImage(imageX, Widget::mY, imageWidth, Widget::mHeight, 0.0f, 0.0f, 1.0f, 1.0f);
             } else {
                 int imageHeight = (Widget::mWidth*mHeightTexture)/mWidthTexture;
-                int imageY = Widget::mY + (Widget::mHeight - imageHeight)*0.5f;
+                int imageY = Widget::mY + 0.5f*(Widget::mHeight - imageHeight);
                 drawImage(Widget::mX, imageY, Widget::mWidth, imageHeight, 0.0f, 0.0f, 1.0f, 1.0f);
             }
             break;

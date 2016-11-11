@@ -33,26 +33,15 @@ void Scrollbar::drawScrollBar()
     Widget::mOglLayer->endCommands();
 }
 
-float Scrollbar::adjustY(float newY)
-{
-    if (newY < 0.0f) {
-        return 0.0f;
-    } else if (newY > Widget::mHeight - mBarHeight) {
-        return Widget::mHeight - mBarHeight;
-    } else {
-        return newY;
-    }
-}
-
 void Scrollbar::onMessage(Wmsg message)
 {
     switch (message.id) {
     case WMSG_MOUSEMOVE:
         if (!mDisable) {
             if (mBarPress) {
-                float newY = adjustY(mBarY + message.data.mouseMove.y - mYLastMouse);
-                if (mBarY != newY) {
-                    mBarY = newY;
+                float newBarY = std::max(std::min(mBarY + message.data.mouseMove.y - mYLastMouse, Widget::mHeight - mBarHeight), 0.0f);
+                if (mBarY != newBarY) {
+                    mBarY = newBarY;
                     mYLastMouse = message.data.mouseMove.y;
                     mOnChangeOffset(((mMaxValue - Widget::mHeight)*mBarY)/(Widget::mHeight - mBarHeight));
                     drawScrollBar();
@@ -84,9 +73,9 @@ void Scrollbar::onMessage(Wmsg message)
                     mYLastMouse = message.data.mouseClick.y;
                     mBarPress = true;
                     if (!common::inToRectangle(message.data.mouseClick.x, message.data.mouseClick.y, Widget::mX - 1.5f*Widget::mWidth, Widget::mY + mBarY, 3.0f*Widget::mWidth, mBarHeight)) {
-                        float newY = adjustY(message.data.mouseClick.y - Widget::mY - 0.5f*mBarHeight);
-                        if (mBarY != newY) {
-                            mBarY = newY;
+                        float newBarY = std::max(std::min(message.data.mouseClick.y - Widget::mY - 0.5f*mBarHeight, Widget::mHeight - mBarHeight), 0.0f);
+                        if (mBarY != newBarY) {
+                            mBarY = newBarY;
                             mBarHover = true;
                             mOnChangeOffset(((mMaxValue - Widget::mHeight)*mBarY)/(Widget::mHeight - mBarHeight));
                             drawScrollBar();
@@ -106,9 +95,9 @@ void Scrollbar::onMessage(Wmsg message)
 
     case WMSG_MOUSEWHEEL:
         if (!mBarPress && !mDisable) {
-            float newY = adjustY(mBarY - (message.data.mouseWheel.delta*SCROLL_ADVANCE*(Widget::mHeight - mBarHeight))/mMaxValue);
-            if (mBarY != newY) {
-                mBarY = newY;
+            float newBarY = std::max(std::min(mBarY - (message.data.mouseWheel.delta*SCROLL_ADVANCE*(Widget::mHeight - mBarHeight))/mMaxValue, Widget::mHeight - mBarHeight), 0.0f);
+            if (mBarY != newBarY) {
+                mBarY = newBarY;
                 mOnChangeOffset(((mMaxValue - Widget::mHeight)*mBarY)/(Widget::mHeight - mBarHeight));
                 drawScrollBar();
             }
@@ -128,9 +117,6 @@ void Scrollbar::onMessage(Wmsg message)
             mBarHover = false;
             drawScrollBar();
         }
-        break;
-
-    case WMSG_KEYPRESS:
         break;
 
     case WMSG_SIZE: {
@@ -154,7 +140,7 @@ void Scrollbar::onMessage(Wmsg message)
             if (mMaxValue - offset < Widget::mHeight) {
                 offset = mMaxValue - Widget::mHeight;
             }
-            mBarY = adjustY((offset*(Widget::mHeight - mBarHeight))/(mMaxValue - Widget::mHeight));
+            mBarY = std::max(std::min((offset*(Widget::mHeight - mBarHeight))/(mMaxValue - Widget::mHeight), Widget::mHeight - mBarHeight), 0.0f);
             mDisable = false;
             drawScrollBar();
             mOnChangeOffset(((mMaxValue - Widget::mHeight)*mBarY)/(Widget::mHeight - mBarHeight));

@@ -22,8 +22,6 @@ private:
 
     /**/
     void drawScrollBar();
-    /**/
-    float adjustY(float newY);
 
 public:
     /*create scrollbar*/
